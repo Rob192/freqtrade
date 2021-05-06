@@ -35,6 +35,8 @@ def main(sysargv: List[str] = None) -> None:
         # Call subcommand.
         if 'func' in args:
             return_code = args['func'](args)
+            if not return_code:
+                return_code = -1
         else:
             # No subcommand was issued.
             raise OperationalException(
@@ -47,7 +49,7 @@ def main(sysargv: List[str] = None) -> None:
                 )
 
     except SystemExit as e:
-        return_code = e
+        return_code = 2
     except KeyboardInterrupt:
         logger.info('SIGINT received, aborting ...')
         return_code = 0
