@@ -168,13 +168,13 @@ class TrendHyperOpt(IStrategy):
 
         # TRIGGERS
         if self.buy_trigger.value == 'rsi':
-            conditions.append(qtpylib.crossed_above(dataframe[f'rsi_{self.lookback.value}'], self.buy_rsi))
+            conditions.append(dataframe[f'rsi_{self.lookback.value}'] > self.buy_rsi.value)
         if self.buy_trigger.value == 'ema':
             conditions.append(qtpylib.crossed_above(
                 dataframe[f'ema_short_{self.buy_ema_short.value}'], dataframe[f'ema_long_{self.buy_ema_long.value}']
             ))
         if self.buy_trigger.value == 'roc':
-            conditions.append(qtpylib.crossed_above(dataframe[f'roc_{self.lookback.value}'], self.buy_roc))
+            conditions.append(dataframe[f'roc_{self.lookback.value}'] > self.buy_rsi.value)
 
         # Check that volume is not 0
         conditions.append(dataframe['volume'] > 0)
