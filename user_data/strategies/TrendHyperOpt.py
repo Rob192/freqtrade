@@ -40,9 +40,11 @@ class TrendHyperOpt(IStrategy):
     buy_rsi = IntParameter(53, 54, default=53, space="buy")
     buy_roc = IntParameter(102, 103, default=102, space="buy")
 
+    boll_std = IntParameter(1, 3, default=1, space='buy')
+
     buy_ema_short = IntParameter(3, 50, default=5, space='buy')
     buy_ema_long = IntParameter(10, 100, default=50, space='buy')
-    buy_trigger = CategoricalParameter(['rsi', 'ema', 'roc'], space="buy")
+    buy_trigger = CategoricalParameter(['rsi', 'ema', 'roc', 'boll', 'donchian'], space="buy")
 
 
     # Strategy interface version - allow new iterations of the strategy interface.
@@ -59,7 +61,7 @@ class TrendHyperOpt(IStrategy):
 
     # Optimal stoploss designed for the strategy.
     # This attribute will be overridden if the config file contains "stoploss".
-    stoploss = -0.10
+    stoploss = -1000000
 
     # Trailing stoploss
     trailing_stop = False
@@ -68,7 +70,7 @@ class TrendHyperOpt(IStrategy):
     # trailing_stop_positive_offset = 0.0  # Disabled / not configured
 
     # Optimal timeframe for the strategy.
-    timeframe = '5m'
+    timeframe = '1h'
 
     # Run "populate_indicators()" only for new candle.
     process_only_new_candles = False
@@ -150,6 +152,12 @@ class TrendHyperOpt(IStrategy):
         for val in self.buy_ema_long.range:
             dataframe[f'ema_long_{val}'] = sta.EMA(dataframe, timeperiod=val)
 
+        # Calculate bollinger
+        for lb in self.lookback.range:
+            for std in self.boll_std.range:
+                bollinger = qtpylib.bollinger_bands(qtpylib.typical_price(dataframe), window=lb, stds=std)
+                dataframe[f'bol_upper_{lb}_{std}'] = bollinger['upper']
+
         # ROC
         for val in self.lookback.range:
             dataframe[f'roc_{val}'] = sta.ROC(dataframe, window=val)
@@ -170,11 +178,15 @@ class TrendHyperOpt(IStrategy):
         if self.buy_trigger.value == 'rsi':
             conditions.append(dataframe[f'rsi_{self.lookback.value}'] > self.buy_rsi.value)
         if self.buy_trigger.value == 'ema':
-            conditions.append(qtpylib.crossed_above(
-                dataframe[f'ema_short_{self.buy_ema_short.value}'], dataframe[f'ema_long_{self.buy_ema_long.value}']
-            ))
+            conditions.append(
+                dataframe[f'ema_short_{self.buy_ema_short.value}'] > dataframe[f'ema_long_{self.buy_ema_long.value}']
+            )
         if self.buy_trigger.value == 'roc':
             conditions.append(dataframe[f'roc_{self.lookback.value}'] > self.buy_rsi.value)
+        if self.buy_trigger.value == 'boll':
+            conditions.append(
+                dataframe['close'] > dataframe[f'bol_upper_{self.lookback.value}_{self.boll_std.value}']
+            )
 
         # Check that volume is not 0
         conditions.append(dataframe['volume'] > 0)
