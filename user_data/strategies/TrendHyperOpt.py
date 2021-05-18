@@ -55,7 +55,7 @@ class TrendHyperOpt(IStrategy):
 
     # Optimal stoploss designed for the strategy.
     # This attribute will be overridden if the config file contains "stoploss".
-    stoploss = -1000000
+    stoploss = -0.03
 
     # Trailing stoploss
     trailing_stop = False
