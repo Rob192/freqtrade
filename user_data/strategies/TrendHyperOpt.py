@@ -66,6 +66,16 @@ class TrendHyperOpt(IStrategy):
     # Optimal timeframe for the strategy.
     timeframe = '1h'
 
+    # Minimal ROI designed for the strategy.
+    # This attribute will be overridden if the config file contains "minimal_roi".
+    timeframe_mins = timeframe_to_minutes(timeframe)
+    minimal_roi = {
+        str(timeframe_mins * 0): 100,  # do not sell
+        str(timeframe_mins * 6): 100,  # do not sell
+        str(timeframe_mins * 12): 100,  # do not sell
+        str(timeframe_mins * 24): 0, #after one day, sell everything when not loosing
+    }
+
     # Run "populate_indicators()" only for new candle.
     process_only_new_candles = False
 
