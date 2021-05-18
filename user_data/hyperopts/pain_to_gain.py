@@ -23,14 +23,14 @@ class PainToGainHyperOptLoss(IHyperOptLoss):
         """
         Objective function, returns smaller number for better results
         """
-        total_profit = results['profit_abs'].sum()
-        max_loss = results['profit_abs'].min()
+        total_profit = max(0.1,results['profit_abs'].sum()) #avoid negative results
+        max_loss = abs(results['profit_ratio'].min())
 
-        profit_per_trade = results['profit_ratio'].mean()
-        trade_duration = results['trade_duration'].mean()
+        # profit_per_trade = results['profit_ratio'].mean()
+        # trade_duration = results['trade_duration'].mean()
 
         pain_to_gain = max_loss / total_profit
-        duration_per_profit = trade_duration / profit_per_trade
+        # duration_per_profit = trade_duration / profit_per_trade
 
-        result = duration_per_profit + pain_to_gain
+        result = pain_to_gain
         return result
