@@ -35,6 +35,7 @@ class TrendHyperOpt(IStrategy):
     You should keep:
     - timeframe, minimal_roi, stoploss, trailing_*
     """
+
     lookback = IntParameter(10, 80, default=20, space='buy')
 
     buy_rsi = IntParameter(53, 54, default=53, space="buy")
@@ -51,13 +52,6 @@ class TrendHyperOpt(IStrategy):
     # Check the documentation or the Sample strategy to get the latest version.
     INTERFACE_VERSION = 2
 
-    # Minimal ROI designed for the strategy.
-    # This attribute will be overridden if the config file contains "minimal_roi".
-    max_hold = "1d"
-    timeframe_mins = timeframe_to_minutes(max_hold)
-    minimal_roi = {
-        str(timeframe_mins): -100000.0, #after one day, sell everything, at any price
-    }
 
     # Optimal stoploss designed for the strategy.
     # This attribute will be overridden if the config file contains "stoploss".
@@ -158,6 +152,10 @@ class TrendHyperOpt(IStrategy):
                 bollinger = qtpylib.bollinger_bands(qtpylib.typical_price(dataframe), window=lb, stds=std)
                 dataframe[f'bol_upper_{lb}_{std}'] = bollinger['upper']
 
+        # Calculate Donchian Upper
+        for lb in self.lookback.range:
+            dataframe[f'donchian_{lb}'] = dataframe.ta.donchian(upper_length=lb)[f'DCU_20_{lb}']
+
         # ROC
         for val in self.lookback.range:
             dataframe[f'roc_{val}'] = sta.ROC(dataframe, window=val)
@@ -186,6 +184,10 @@ class TrendHyperOpt(IStrategy):
         if self.buy_trigger.value == 'boll':
             conditions.append(
                 dataframe['close'] > dataframe[f'bol_upper_{self.lookback.value}_{self.boll_std.value}']
+            )
+        if self.buy_trigger.value == 'donchian':
+            conditions.append(
+                dataframe['close'] > dataframe[f'donchian_{self.lookback.value}']
             )
 
         # Check that volume is not 0
