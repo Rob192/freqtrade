@@ -47,7 +47,6 @@ class TrendHyperOpt(IStrategy):
     buy_ema_long = IntParameter(10, 100, default=50, space='buy')
     buy_trigger = CategoricalParameter(['rsi', 'ema', 'roc', 'boll', 'donchian'], space="buy")
 
-
     # Strategy interface version - allow new iterations of the strategy interface.
     # Check the documentation or the Sample strategy to get the latest version.
     INTERFACE_VERSION = 2
@@ -55,7 +54,7 @@ class TrendHyperOpt(IStrategy):
 
     # Optimal stoploss designed for the strategy.
     # This attribute will be overridden if the config file contains "stoploss".
-    stoploss = -0.03
+    stoploss = -0.20
 
     # Trailing stoploss
     trailing_stop = False
