@@ -38,8 +38,8 @@ class TrendHyperOpt(IStrategy):
 
     lookback = IntParameter(10, 80, default=20, space='buy')
 
-    buy_rsi = IntParameter(53, 54, default=53, space="buy")
-    buy_roc = IntParameter(102, 103, default=102, space="buy")
+    buy_rsi = IntParameter(50, 80, default=53, space="buy")
+    buy_roc = IntParameter(2, 20, default=2, space="buy")
 
     boll_std = IntParameter(1, 3, default=1, space='buy')
 
