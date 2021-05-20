@@ -11,6 +11,8 @@ from freqtrade.strategy import IStrategy
 from freqtrade.strategy import CategoricalParameter, DecimalParameter, IntParameter
 from freqtrade.exchange import timeframe_to_minutes
 
+from tqdm import tqdm
+
 # --------------------------------
 # Add your lib to import here
 import talib.abstract as sta
@@ -148,7 +150,7 @@ class TrendHyperOpt(IStrategy):
         """
 
         #linreg
-        for val in self.linreg_lookback.range:
+        for val in tqdm(self.linreg_lookback.range, desc='Calculating the linear regressions'):
             dataframe[f'linreg_{val}'] = dataframe.ta.linreg(length=val, slope=True)
 
         # RSI

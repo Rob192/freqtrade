@@ -16,6 +16,7 @@ jsonschema==3.2.0
 TA-Lib==0.4.19
 technical==1.2.2
 tabulate==0.8.9
+tqdm
 pandas-ta==0.2.45b0
 pycoingecko==2.0.0
 jinja2==2.11.3
