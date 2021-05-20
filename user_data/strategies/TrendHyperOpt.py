@@ -36,16 +36,21 @@ class TrendHyperOpt(IStrategy):
     - timeframe, minimal_roi, stoploss, trailing_*
     """
 
-    lookback = IntParameter(10, 80, default=20, space='buy')
 
+    use_rsi = CategoricalParameter([True, False], space="buy")
     buy_rsi = IntParameter(50, 80, default=53, space="buy")
-    buy_roc = IntParameter(2, 20, default=2, space="buy")
+    rsi_lookback = IntParameter(10, 80, default=20, space='buy')
+
+    use_linreg = CategoricalParameter([True, False], space="buy")
+    linreg_lookback = IntParameter(20, 160, default=40, space='buy')
+
+    buy_trigger = CategoricalParameter(['ema', 'boll', 'donchian'], space="buy")
+    lookback = IntParameter(10, 80, default=20, space='buy')
 
     boll_std = IntParameter(1, 3, default=1, space='buy')
 
     buy_ema_short = IntParameter(3, 50, default=5, space='buy')
     buy_ema_long = IntParameter(10, 100, default=50, space='buy')
-    buy_trigger = CategoricalParameter(['rsi', 'ema', 'roc', 'boll', 'donchian'], space="buy")
 
     # Strategy interface version - allow new iterations of the strategy interface.
     # Check the documentation or the Sample strategy to get the latest version.
@@ -141,10 +146,13 @@ class TrendHyperOpt(IStrategy):
         :param metadata: Additional information, like the currently traded pair
         :return: a Dataframe with all mandatory indicators for the strategies
         """
-        
+
+        #linreg
+        for val in self.linreg_lookback.range:
+            dataframe[f'linreg_{val}'] = dataframe.ta.linreg(length=val, slope=True)
 
         # RSI
-        for val in self.lookback.range:
+        for val in self.rsi_lookback.range:
             dataframe[f'rsi_{val}'] = dataframe.ta.rsi(length=val)
 
         # Calculate all ema_short values
@@ -165,9 +173,6 @@ class TrendHyperOpt(IStrategy):
         for lb in self.lookback.range:
             dataframe[f'donchian_{lb}'] = dataframe.ta.donchian(upper_length=lb)[f'DCU_20_{lb}']
 
-        # ROC
-        for val in self.lookback.range:
-            dataframe[f'roc_{val}'] = sta.ROC(dataframe, window=val)
 
         return dataframe
 
@@ -180,16 +185,16 @@ class TrendHyperOpt(IStrategy):
         """
         conditions = []
         # GUARDS AND TRENDS
+        if self.use_linreg.value == True:
+            conditions.append(dataframe[f'linreg_{self.linreg_lookback.value}'] > 0)
+        if self.use_rsi.value == True:
+            conditions.append(dataframe[f'rsi_{self.lookback.value}'] > self.buy_rsi.value)
 
         # TRIGGERS
-        if self.buy_trigger.value == 'rsi':
-            conditions.append(dataframe[f'rsi_{self.lookback.value}'] > self.buy_rsi.value)
         if self.buy_trigger.value == 'ema':
             conditions.append(
                 dataframe[f'ema_short_{self.buy_ema_short.value}'] > dataframe[f'ema_long_{self.buy_ema_long.value}']
             )
-        if self.buy_trigger.value == 'roc':
-            conditions.append(dataframe[f'roc_{self.lookback.value}'] > self.buy_rsi.value)
         if self.buy_trigger.value == 'boll':
             conditions.append(
                 dataframe['close'] > dataframe[f'bol_upper_{self.lookback.value}_{self.boll_std.value}']
