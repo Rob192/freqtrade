@@ -190,7 +190,7 @@ class TrendHyperOpt(IStrategy):
         if self.use_linreg.value == True:
             conditions.append(dataframe[f'linreg_{self.linreg_lookback.value}'] > 0)
         if self.use_rsi.value == True:
-            conditions.append(dataframe[f'rsi_{self.lookback.value}'] > self.buy_rsi.value)
+            conditions.append(dataframe[f'rsi_{self.rsi_lookback.value}'] > self.buy_rsi.value)
 
         # TRIGGERS
         if self.buy_trigger.value == 'ema':
