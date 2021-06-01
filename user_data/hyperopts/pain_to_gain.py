@@ -23,13 +23,23 @@ class PainToGainHyperOptLoss(IHyperOptLoss):
         """
         Objective function, returns smaller number for better results
         """
+        initial_stake_amount = results['stake_amount'].iloc[0]
+        count_win = results[results['profit_ratio'] > 0]['profit_ratio'].count()
+        avg_win = results[results['profit_ratio'] > 0]['profit_ratio'].mean()
+
+        count_loss = results[results['profit_ratio'] < 0]['profit_ratio'].count()
+        avg_loss = results[results['profit_ratio'] < 0]['profit_ratio'].mean()
+
         total_profit = max(0.1,results['profit_abs'].sum()) #avoid negative results
+        total_profit_ratio = total_profit / initial_stake_amount #we compare the profit vs initial stake
+
+        total_expected_profit_ratio = pow(1 + avg_win, count_win) * pow(1+avg_loss, count_loss) #we compare the expected profit vs initial stake
         max_loss = abs(results['profit_ratio'].min())
 
         # profit_per_trade = results['profit_ratio'].mean()
         # trade_duration = results['trade_duration'].mean()
 
-        pain_to_gain = max_loss / total_profit
+        pain_to_gain = max_loss / (total_profit_ratio * total_expected_profit_ratio)
         # duration_per_profit = trade_duration / profit_per_trade
 
         result = pain_to_gain
