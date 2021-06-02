@@ -39,7 +39,7 @@ class PainToGainHyperOptLoss(IHyperOptLoss):
         # profit_per_trade = results['profit_ratio'].mean()
         # trade_duration = results['trade_duration'].mean()
 
-        pain_to_gain = max_loss / (total_profit_ratio * total_expected_profit_ratio)
+        pain_to_gain = max_loss / pow(total_expected_profit_ratio, 2)
         # duration_per_profit = trade_duration / profit_per_trade
 
         result = pain_to_gain
