@@ -35,6 +35,8 @@ class PainToGainHyperOptLoss(IHyperOptLoss):
 
         total_expected_profit_ratio = pow(1 + avg_win, count_win) * pow(1+avg_loss, count_loss) #we compare the expected profit vs initial stake
         max_loss = abs(results['profit_ratio'].min())
+        if max_loss == 0:
+            max_loss = 1000 #avoid getting stuck with absolutely no bad trades as this is an exemple of overtraining
 
         # profit_per_trade = results['profit_ratio'].mean()
         # trade_duration = results['trade_duration'].mean()
