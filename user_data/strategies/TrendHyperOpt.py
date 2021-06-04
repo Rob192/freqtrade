@@ -41,6 +41,7 @@ class TrendHyperOpt(IStrategy):
 
     use_rsi = CategoricalParameter([True, False], space="buy")
     buy_rsi = IntParameter(50, 80, default=53, space="buy")
+    buy_linreg = IntParameter(0, 80, default=53, space="buy")
     rsi_lookback = IntParameter(10, 80, default=20, space='buy')
 
     use_linreg = CategoricalParameter([True, False], space="buy")
@@ -188,7 +189,7 @@ class TrendHyperOpt(IStrategy):
         conditions = []
         # GUARDS AND TRENDS
         if self.use_linreg.value == True:
-            conditions.append(dataframe[f'linreg_{self.linreg_lookback.value}'] > 0)
+            conditions.append(dataframe[f'linreg_{self.linreg_lookback.value}'] > self.buy_linreg.value)
         if self.use_rsi.value == True:
             conditions.append(dataframe[f'rsi_{self.rsi_lookback.value}'] > self.buy_rsi.value)
 
