@@ -9,7 +9,7 @@ services:
     # Build step - only needed when additional dependencies are needed
     build:
       context: .
-      dockerfile: "./docker/Dockerfile.custom"
+      dockerfile: "./Dockerfile.custom"
     restart: unless-stopped
     container_name: freqtrade
     volumes:
@@ -25,4 +25,4 @@ services:
       --logfile /freqtrade/user_data/logs/freqtrade.log
       --db-url sqlite:////freqtrade/user_data/tradesv3.sqlite
       --config /freqtrade/user_data/config_trendfollow.json
-      --strategy TrendFollow
+      --strategy TrendBoll
