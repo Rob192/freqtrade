@@ -45,9 +45,9 @@ class TrendHyperOpt(IStrategy):
     rsi_lookback = IntParameter(10, 80, default=20, space='buy')
 
     use_linreg = CategoricalParameter([True, False], space="buy")
-    linreg_lookback = IntParameter(20, 160, default=40, space='buy')
+    linreg_lookback = IntParameter(10, 160, default=40, space='buy')
 
-    buy_trigger = CategoricalParameter(['ema', 'boll', 'donchian'], space="buy")
+    buy_trigger = CategoricalParameter(['boll'], space="buy")
     lookback = IntParameter(10, 80, default=20, space='buy')
 
     boll_std = IntParameter(1, 3, default=1, space='buy')
@@ -200,7 +200,7 @@ class TrendHyperOpt(IStrategy):
             )
         if self.buy_trigger.value == 'boll':
             conditions.append(
-                dataframe['close'] > dataframe[f'bol_upper_{self.lookback.value}_{self.boll_std.value}']
+                dataframe['close'] < dataframe[f'bol_lower_{self.lookback.value}_{self.boll_std.value}']
             )
         if self.buy_trigger.value == 'donchian':
             conditions.append(
